@@ -338,7 +338,7 @@ export const homeSeed = {
     messagePlaceholder: 'Thương hiệu của bạn, mục tiêu, vấn đề đang gặp...',
     submitLabel: 'Send Your Brief',
     note: 'Thông tin của bạn được bảo mật và chỉ dùng để trao đổi về dự án.',
-    successMessage: '✓ Đang mở ứng dụng email của bạn để gửi brief...',
+    successMessage: '✓ Đã gửi brief! Mình sẽ phản hồi trong 24–48 giờ làm việc.',
   },
 }
 

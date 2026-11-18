@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
+import { submitBrief } from '@/app/(frontend)/actions'
 
 type Opt = { label: string; id?: string | null }
 
 export function ContactForm({
-  email,
   serviceOptions,
   budgetOptions,
   timelineOptions,
@@ -14,7 +14,6 @@ export function ContactForm({
   note,
   successMessage,
 }: {
-  email: string
   serviceOptions: Opt[]
   budgetOptions: Opt[]
   timelineOptions: Opt[]
@@ -23,25 +22,26 @@ export function ContactForm({
   note?: string | null
   successMessage?: string | null
 }) {
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [error, setError] = useState('')
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const f = new FormData(e.currentTarget)
-    const g = (k: string) => String(f.get(k) ?? '')
-    const subject = `[Brief] ${g('service')} — ${g('company') || g('name')}`
-    const body = `Họ tên: ${g('name')}
-Doanh nghiệp: ${g('company')}
-Email: ${g('email')}
-SĐT/Zalo: ${g('phone')}
-Dịch vụ: ${g('service')}
-Ngân sách: ${g('budget')}
-Thời gian: ${g('timeline')}
-
-Nhu cầu:
-${g('message')}`
-    setSent(true)
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    const form = e.currentTarget
+    setStatus('sending')
+    try {
+      const res = await submitBrief(new FormData(form))
+      if (res.ok) {
+        setStatus('sent')
+        form.reset()
+      } else {
+        setError(res.error)
+        setStatus('error')
+      }
+    } catch {
+      setError('Gửi không thành công, vui lòng thử lại hoặc liên hệ trực tiếp qua email.')
+      setStatus('error')
+    }
   }
 
   const options = (list: Opt[]) =>
@@ -93,13 +93,30 @@ ${g('message')}`
         <label>Mô tả nhu cầu / Brief *</label>
         <textarea name="message" required placeholder={messagePlaceholder ?? undefined}></textarea>
       </div>
-      <button type="submit" className="btn btn-primary">
-        {submitLabel || 'Send Your Brief'} <span className="arr">→</span>
+      {/* Honeypot chống spam: ẩn với người dùng */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+      />
+      <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+        {status === 'sending' ? 'Đang gửi...' : submitLabel || 'Send Your Brief'}{' '}
+        <span className="arr">→</span>
       </button>
       {note && <p className="f-note">{note}</p>}
-      <div className="f-msg" style={sent ? { display: 'block' } : undefined}>
-        {successMessage}
-      </div>
+      {status === 'sent' && (
+        <div className="f-msg" style={{ display: 'block' }}>
+          {successMessage || '✓ Đã gửi brief! Mình sẽ phản hồi trong 24–48 giờ làm việc.'}
+        </div>
+      )}
+      {status === 'error' && (
+        <div className="f-msg" style={{ display: 'block', borderColor: '#ff6b6b', color: '#ff6b6b' }}>
+          {error}
+        </div>
+      )}
     </form>
   )
 }

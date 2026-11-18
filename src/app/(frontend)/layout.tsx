@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import { getSiteData } from '@/lib/data'
+import { themeCss } from '@/lib/theme'
 import './globals.css'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +14,10 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { settings } = await getSiteData()
+  const css = themeCss(settings.theme)
+
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
@@ -27,6 +31,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
           rel="stylesheet"
         />
+        {/* Màu chỉnh trong CMS (Cài đặt chung → Màu sắc) */}
+        {css && <style id="theme-colors" dangerouslySetInnerHTML={{ __html: css }} />}
       </head>
       <body>{children}</body>
     </html>

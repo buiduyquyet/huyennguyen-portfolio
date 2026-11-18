@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     projects: Project;
+    briefs: Brief;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    briefs: BriefsSelect<false> | BriefsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -180,6 +182,26 @@ export interface Project {
   createdAt: string;
 }
 /**
+ * Lưu lại mọi brief gửi từ form liên hệ, kể cả khi gửi mail thất bại.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "briefs".
+ */
+export interface Brief {
+  id: string;
+  name: string;
+  company?: string | null;
+  email: string;
+  phone?: string | null;
+  service?: string | null;
+  budget?: string | null;
+  timeline?: string | null;
+  message: string;
+  emailSent?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -253,6 +275,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'projects';
         value: string | Project;
+      } | null)
+    | ({
+        relationTo: 'briefs';
+        value: string | Brief;
       } | null)
     | ({
         relationTo: 'media';
@@ -331,6 +357,23 @@ export interface ProjectsSelect<T extends boolean = true> {
   strategy?: T;
   execution?: T;
   results?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "briefs_select".
+ */
+export interface BriefsSelect<T extends boolean = true> {
+  name?: T;
+  company?: T;
+  email?: T;
+  phone?: T;
+  service?: T;
+  budget?: T;
+  timeline?: T;
+  message?: T;
+  emailSent?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -677,7 +720,7 @@ export interface Home {
         }[]
       | null;
     /**
-     * Form sẽ mở ứng dụng email của khách để gửi brief tới địa chỉ này.
+     * Brief từ form được gửi tới địa chỉ này (qua SMTP) và lưu ở mục "Brief khách gửi".
      */
     briefEmail?: string | null;
     serviceOptions?:
@@ -716,6 +759,44 @@ export interface Setting {
   id: string;
   siteTitle?: string | null;
   siteDescription?: string | null;
+  theme?: {
+    /**
+     * Nút, chữ nổi bật, dải chữ chạy, nền section Contact
+     */
+    primary?: string | null;
+    /**
+     * Gạch chân khi rê chuột ở section Why
+     */
+    primaryDark?: string | null;
+    /**
+     * Nền trang và chữ trên nền màu chính
+     */
+    background?: string | null;
+    /**
+     * Section Ways to Work, thẻ ngành, popup, menu mobile
+     */
+    surface?: string | null;
+    /**
+     * Nền khung ảnh chân dung khi chưa có ảnh
+     */
+    surfaceAlt?: string | null;
+    /**
+     * Viền, đường kẻ, lưới nền Hero
+     */
+    border?: string | null;
+    /**
+     * Chữ chính, nền section Why
+     */
+    text?: string | null;
+    /**
+     * Đoạn văn, menu
+     */
+    softText?: string | null;
+    /**
+     * Mô tả, ghi chú
+     */
+    mutedText?: string | null;
+  };
   logoLeft?: string | null;
   logoRight?: string | null;
   navLinks?:
@@ -973,6 +1054,19 @@ export interface HomeSelect<T extends boolean = true> {
 export interface SettingsSelect<T extends boolean = true> {
   siteTitle?: T;
   siteDescription?: T;
+  theme?:
+    | T
+    | {
+        primary?: T;
+        primaryDark?: T;
+        background?: T;
+        surface?: T;
+        surfaceAlt?: T;
+        border?: T;
+        text?: T;
+        softText?: T;
+        mutedText?: T;
+      };
   logoLeft?: T;
   logoRight?: T;
   navLinks?:

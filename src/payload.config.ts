@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
@@ -9,6 +10,7 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Projects } from './collections/Projects'
+import { Briefs } from './collections/Briefs'
 import { Settings } from './globals/Settings'
 import { Home } from './globals/Home'
 import { seed } from './seed'
@@ -16,6 +18,11 @@ import { setServers } from 'node:dns'
 
 // Giống quyet-portfolio: dùng DNS công cộng để resolve bản ghi SRV của MongoDB Atlas
 setServers(['1.1.1.1', '8.8.8.8'])
+
+const smtpPort = Number(process.env.SMTP_PORT) || 587
+const smtpConfigured = Boolean(
+  process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
+)
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -30,7 +37,7 @@ export default buildConfig({
       titleSuffix: ' — Huyen Nguyen CMS',
     },
   },
-  collections: [Projects, Media, Users],
+  collections: [Projects, Briefs, Media, Users],
   globals: [Home, Settings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -40,6 +47,22 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URL || '',
   }),
+  /**
+   * Gửi mail qua SMTP, giống quyet-portfolio (Gmail + App Password).
+   * Chưa điền SMTP_* thì Payload chỉ in mail ra console, không gửi thật.
+   */
+  email: smtpConfigured
+    ? nodemailerAdapter({
+        defaultFromAddress: process.env.EMAIL_FROM || process.env.SMTP_USER || '',
+        defaultFromName: 'Huyen Nguyen Portfolio',
+        transportOptions: {
+          host: process.env.SMTP_HOST,
+          port: smtpPort,
+          secure: smtpPort === 465, // true cho 465, false cho 587
+          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        },
+      })
+    : undefined,
   sharp,
   plugins: [
     /**

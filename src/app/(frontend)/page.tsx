@@ -49,10 +49,6 @@ export default async function HomePage() {
   const photo = about?.photo as Media | null | undefined
   const photoSrc = (photo && typeof photo === 'object' && photo.url) || about?.photoUrl || ''
   const marquee = hero?.marquee ?? []
-  const briefEmail =
-    contact?.briefEmail ||
-    contact?.items?.find((i) => i.url?.startsWith('mailto:'))?.url?.replace('mailto:', '') ||
-    ''
   const year = new Date().getFullYear()
 
   return (
@@ -388,7 +384,6 @@ export default async function HomePage() {
             </div>
 
             <ContactForm
-              email={briefEmail}
               serviceOptions={contact?.serviceOptions ?? []}
               budgetOptions={contact?.budgetOptions ?? []}
               timelineOptions={contact?.timelineOptions ?? []}

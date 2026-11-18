@@ -1,5 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { textField } from '../fields/shared'
+import { HEX_COLOR, THEME_COLORS } from '../lib/theme'
 
 const linkFields = [
   {
@@ -20,6 +21,32 @@ export const Settings: GlobalConfig = {
       fields: [
         textField('siteTitle', 'Tiêu đề trang (thẻ <title>)'),
         { name: 'siteDescription', label: 'Mô tả (meta description)', type: 'textarea' },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Màu sắc',
+      admin: {
+        description: 'Để trống ô nào thì ô đó dùng màu mặc định của thiết kế.',
+      },
+      fields: [
+        {
+          name: 'theme',
+          type: 'group',
+          label: false,
+          fields: THEME_COLORS.map((c) => ({
+            name: c.name,
+            label: c.label,
+            type: 'text' as const,
+            validate: (v: string | null | undefined) =>
+              !v || HEX_COLOR.test(v.trim()) || 'Mã màu dạng #rrggbb, ví dụ #c8ff00',
+            admin: {
+              description: c.description,
+              placeholder: c.default,
+              components: { Field: '/components/admin/ColorField#ColorField' },
+            },
+          })),
+        },
       ],
     },
     {

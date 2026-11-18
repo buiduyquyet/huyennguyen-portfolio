@@ -24,7 +24,7 @@ Dùng MongoDB Atlas, cùng cluster với dự án quyet-portfolio nhưng là **d
 | Mục trong admin | Nội dung |
 | --- | --- |
 | **Globals → Trang chủ** | Từng section theo tab: Hero, Số liệu, About, Why, Services, Ways to Work, Selected Works, Brands & Industries, Process, Insights, Contact (gồm email nhận brief và các lựa chọn trong form) |
-| **Globals → Cài đặt chung** | SEO, logo, menu, footer |
+| **Globals → Cài đặt chung** | Màu sắc (primary, nền, chữ...), SEO, logo, menu, footer |
 | **Collections → Dự án** | Thẻ dự án + nội dung popup case study (sắp xếp theo trường "Thứ tự") |
 | **Collections → Media** | Ảnh upload (VD: ảnh chân dung ở tab About) |
 
@@ -62,6 +62,22 @@ pnpm build && pnpm start
 ```
 
 MongoDB không cần migration.
+
+## Gửi mail từ form liên hệ (giống quyet-portfolio)
+
+Brief khách gửi được lưu ở **Collections → Brief khách gửi**, rồi gửi mail tới "Email nhận brief" (tab Contact) qua SMTP. Nút Reply trong mail trả lời thẳng cho khách.
+
+Điền vào `.env` (và Environment Variables trên Vercel):
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=tai-khoan@gmail.com
+SMTP_PASS=<App Password 16 ký tự>
+EMAIL_FROM=tai-khoan@gmail.com
+```
+
+Gmail: bật xác minh 2 bước, rồi tạo App Password tại https://myaccount.google.com/apppasswords. Chưa điền SMTP thì brief vẫn được lưu, mail chỉ in ra console.
 
 ## Ảnh upload (giống namdinhfc)
 

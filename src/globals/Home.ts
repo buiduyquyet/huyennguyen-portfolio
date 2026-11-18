@@ -333,7 +333,7 @@ export const Home: GlobalConfig = {
                   label: 'Email nhận brief',
                   type: 'email',
                   admin: {
-                    description: 'Form sẽ mở ứng dụng email của khách để gửi brief tới địa chỉ này.',
+                    description: 'Brief từ form được gửi tới địa chỉ này (qua SMTP) và lưu ở mục "Brief khách gửi".',
                   },
                 },
                 optionsField('serviceOptions', 'Lựa chọn "Bạn cần hỗ trợ"'),
